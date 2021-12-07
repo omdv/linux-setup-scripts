@@ -1,0 +1,17 @@
+---
+- name: Install fish and fzf-tools
+  package:
+    name:
+      - fish
+      - fzf
+      - bat
+      - fd-find
+    state: latest
+
+- name: Make fish a default shell
+  shell: "usermod -s /usr/bin/fish {{ user }}"
+  become: yes
+
+- name: Configure fzf bindings
+  shell: fzf_configure_bindings --git_status=\cg --history=\cr --variables=\cv --directory=\cf --git_log=\cl
+  become_user: "{{ user }}"

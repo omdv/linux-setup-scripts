@@ -1,0 +1,10 @@
+---
+- name: Install the latest packages
+  package:
+    name:
+      - timeshift
+      - borgbackup
+    state: latest
+  
+- name: launch timeshift UI
+  shell: timeshift

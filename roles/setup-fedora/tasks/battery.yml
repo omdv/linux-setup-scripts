@@ -1,0 +1,27 @@
+---
+- name: Install the latest packages
+  package:
+    name:
+      - tlp
+      - powertop
+      - smartmontools
+    state: latest
+
+- name: mask rfkill
+  shell: systemctl mask systemd-rfkill.socket
+
+- name: Ensure SELinux is set to enforcing mode
+  ansible.builtin.lineinfile:
+    path: /etc/tlp.conf
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+  loop:
+    - {regex: '^PCIE_ASPM_ON_BAT=', line: 'PCIE_ASPM_ON_BAT = powersupersave'}
+    - {regex: '^START_CHARGE_THRESH_BAT0=', line: 'START_CHARGE_THRESH_BAT0=73'}
+    - {regex: '^STOP_CHARGE_THRESH_BAT0=', line: 'STOP_CHARGE_THRESH_BAT0=82'}
+
+- name: start tlp
+  shell: tlp start
+
+# switch to gpu rendering in firefox
+# https://community.frame.work/t/linux-battery-life-tuning/6665

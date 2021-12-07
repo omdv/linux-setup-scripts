@@ -1,0 +1,8 @@
+---
+- name: -- SETUP FEDORA --
+  hosts: 127.0.0.1
+  roles:
+    - setup-fedora
+  vars:
+    - user: "{{ lookup('env','USER') }}"
+  become: False

@@ -1,0 +1,24 @@
+---
+- import_tasks: hibernate.yml
+  tags:
+    - hibernate
+
+- import_tasks: battery.yml
+  tags:
+    - battery
+
+- import_tasks: coding.yml
+  tags:
+    - coding
+  
+- import_tasks: terminal.yml
+  tags:
+    - terminal
+
+- import_tasks: backups.yml
+  tags:
+    - backups
+
+- import_tasks: containers.yml
+  tags:
+    - containers
