@@ -3,9 +3,9 @@
   tags:
     - hibernate
 
-- import_tasks: battery.yml
+- import_tasks: system.yml
   tags:
-    - battery
+    - system
 
 - import_tasks: coding.yml
   tags:
@@ -14,10 +14,6 @@
 - import_tasks: terminal.yml
   tags:
     - terminal
-
-- import_tasks: backups.yml
-  tags:
-    - backups
 
 - import_tasks: containers.yml
   tags:

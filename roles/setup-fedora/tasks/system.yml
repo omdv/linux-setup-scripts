@@ -1,0 +1,47 @@
+---
+# source: https://www.ctrl.blog/entry/fedora-hibernate.html
+#TODO: update sleep.conf
+#TODO: update logind.conf
+
+- name: Install the latest packages
+  package:
+    name:
+      - tlp
+      - powertop
+      - smartmontools
+      - timeshift
+      - borgbackup
+      - gnome-tweak-tool
+      - cronie
+    state: latest
+
+- name: mask rfkill
+  shell: systemctl mask systemd-rfkill.socket
+
+- name: configure tlp.conf
+  ansible.builtin.lineinfile:
+    path: /etc/tlp.conf
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+  loop:
+    - {regex: '^PCIE_ASPM_ON_BAT=', line: 'PCIE_ASPM_ON_BAT = powersupersave'}
+    - {regex: '^START_CHARGE_THRESH_BAT0=', line: 'START_CHARGE_THRESH_BAT0=73'}
+    - {regex: '^STOP_CHARGE_THRESH_BAT0=', line: 'STOP_CHARGE_THRESH_BAT0=82'}
+    - {regex: '^START_CHARGE_THRESH_BAT1=', line: 'START_CHARGE_THRESH_BAT1=73'}
+    - {regex: '^STOP_CHARGE_THRESH_BAT1=', line: 'STOP_CHARGE_THRESH_BAT1=82'}
+
+- name: start tlp
+  shell: tlp start
+
+- name: configure fstab ssd settings
+  replace:
+    path: /etc/fstab
+    regexp: "{{ item.regex }}"
+    replace: "{{ item.line }}"
+    backup: yes
+  loop:
+    - {regex: 'subvol=@,', line: 'subvol=@,ssd,noatime,space_cache,commit=120,discard=async,'}
+    - {regex: 'subvol=@home,', line: 'subvol=@home,ssd,noatime,space_cache,commit=120,discard=async,'}
+
+# switch to gpu rendering in firefox
+# https://community.frame.work/t/linux-battery-life-tuning/6665
