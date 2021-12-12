@@ -1,20 +1,8 @@
 ---
-- import_tasks: hibernate.yml
-  tags:
-    - hibernate
-
 - import_tasks: system.yml
   tags:
     - system
-
-- import_tasks: coding.yml
-  tags:
-    - coding
   
-- import_tasks: terminal.yml
-  tags:
-    - terminal
-
 - import_tasks: containers.yml
   tags:
     - containers

@@ -4,5 +4,5 @@
   roles:
     - setup-fedora
   vars:
-    - user: "{{ lookup('env','USER') }}"
+    - user: "om"
   become: False
