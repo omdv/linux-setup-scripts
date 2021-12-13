@@ -1,10 +1,12 @@
 ---
-# source: https://www.ctrl.blog/entry/fedora-hibernate.html
+# ref: https://www.ctrl.blog/entry/fedora-hibernate.html
+# ref: https://community.frame.work/t/linux-battery-life-tuning/6665
 #TODO: update sleep.conf
 #TODO: update logind.conf
 #TODO: fzf_bindings
 #TODO: proper fstab patching
 #TODO: timeshift snapshots in boot menu
+#TODO: switch to gpu rendering in firefox
 
 - name: Create .local/bin folder
   ansible.builtin.file:
@@ -155,6 +157,3 @@
     state: started
     daemon_reload: yes
     enabled: yes
-
-# switch to gpu rendering in firefox
-# https://community.frame.work/t/linux-battery-life-tuning/6665

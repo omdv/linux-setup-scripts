@@ -6,7 +6,9 @@
   loop:
     - {name: "zotero"}
 
-- name: install packages
+- name: install applications
   package:
     name:
       - mpv
+      - glances
+      - htop

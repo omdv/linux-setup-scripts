@@ -1,0 +1,40 @@
+---
+- name: add docker-ce repo
+  shell: dnf config-manager \
+    --add-repo \
+    https://download.docker.com/linux/fedora/docker-ce.repo
+
+- name: install packages
+  dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    enablerepo: docker-ce-stable
+    state: latest
+
+- name: create docker group
+  ansible.builtin.group:
+    name: docker
+    state: present
+
+- name: add user to docker
+  ansible.builtin.user:
+    name: "{{ user }}"
+    groups: docker
+    append: yes
+
+- name: start docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: create docker remote context
+  shell: docker context create remote --docker "host=ssh://{{ homelab_ip }}"
+
+- name: fetch k3s context from homelab
+  fetch:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: /home/om/.kube/config
+    flat: true
