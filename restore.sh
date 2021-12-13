@@ -7,4 +7,3 @@ rsync -avuP $BACKUP/Downloads ~/
 rsync -avuP $BACKUP/Music ~/
 rsync -avuP $BACKUP/Pictures ~/
 rsync -avuP $BACKUP/Videos ~/
-rsync -avuP $BACKUP/VirtualMachines ~/

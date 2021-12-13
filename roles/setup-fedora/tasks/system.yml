@@ -31,6 +31,7 @@
       - smartmontools
       - timeshift
       - borgbackup
+      - borgmatic
       - gnome-tweak-tool
       - cronie
       - fira-code-fonts
@@ -132,6 +133,28 @@
     - {regex: '^#HandleLidSwitch=', line: 'HandleLidSwitch=suspend-then-hibernate'}
     - {regex: '^#HandleLidSwitchExternalPower=', line: 'HandleLidSwitchExternalPower=suspend'}
 
+- name: copy borgmatic service and timer
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+  loop:
+    - {src: './files/borgmatic.service', dest: '/etc/systemd/system/borgmatic.service'}
+    - {src: './files/borgmatic.timer', dest: '/etc/systemd/system/borgmatic.timer'}
+
+- name: Enable borgmatic service
+  ansible.builtin.systemd:
+    name: borgmatic
+    enabled: yes
+    masked: no
+
+- name: enable borgmatic timer
+  ansible.builtin.systemd:
+    name: borgmatic.timer
+    state: started
+    daemon_reload: yes
+    enabled: yes
 
 # switch to gpu rendering in firefox
 # https://community.frame.work/t/linux-battery-life-tuning/6665
