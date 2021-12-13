@@ -1,0 +1,42 @@
+---
+- name: add docker-ce repo
+  shell: dnf config-manager \
+    --add-repo \
+    https://download.docker.com/linux/fedora/docker-ce.repo
+
+- name: install packages
+  dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    enablerepo: docker-ce-stable
+    state: latest
+
+- name: install quickemu requirements
+  shell: "snap install qemu-virgil --edge && \
+  snap connect qemu-virgil:audio-record && \
+  snap connect qemu-virgil:kvm && \
+  snap connect qemu-virgil:raw-usb && \
+  snap connect qemu-virgil:removable-media"
+
+- name: download quickemu repo
+  ansible.builtin.git:
+    repo: 'https://github.com/wmutschl/quickemu'
+    dest: "/home/{{ user }}/quickemu"
+
+- name: change ownership of quickemu folder
+  ansible.builtin.file:
+    path: "/home/{{ user }}/quickemu"
+    state: directory
+    recurse: yes
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: Create a symbolic link
+  ansible.builtin.file:
+    src: "/home/{{ user }}/quickemu/quickemu"
+    dest: "/home/{{ user }}/.local/bin/quickemu"
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    state: link

@@ -1,0 +1,12 @@
+---
+- name: install flatpaks
+  flatpak:
+    name: "{{ item.name }}"
+    state: present
+  loop:
+    - {name: "zotero"}
+
+- name: install packages
+  package:
+    name:
+      - mpv

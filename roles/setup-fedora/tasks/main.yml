@@ -3,6 +3,10 @@
   tags:
     - system
   
-- import_tasks: containers.yml
+- import_tasks: vms.yml
   tags:
-    - containers
+    - vms
+
+- import_tasks: apps.yml
+  tags:
+    - apps

@@ -4,11 +4,24 @@
 #TODO: update logind.conf
 #TODO: fzf_bindings
 #TODO: proper fstab patching
+#TODO: timeshift snapshots in boot menu
+
+- name: Create .local/bin folder
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.local/bin"
+    state: directory
+    recurse: yes
+    owner: "{{ user }}"
+    group: "{{ user }}"
 
 - name: Install additional coprs
   shell: "dnf copr enable -y {{ item.copr }}"
   loop:
     - {copr: "peterwu/iosevka"}
+
+- name: Add rpmfusion
+  shell:  "dnf install -y \
+  https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm"
 
 - name: Install the latest packages
   package:
@@ -30,6 +43,7 @@
       - python3-neovim
       - curl
       - git
+      - snapd
     state: latest
 
 - name: mask rfkill
@@ -46,6 +60,7 @@
     - {regex: '^STOP_CHARGE_THRESH_BAT0=', line: 'STOP_CHARGE_THRESH_BAT0=82'}
     - {regex: '^START_CHARGE_THRESH_BAT1=', line: 'START_CHARGE_THRESH_BAT1=73'}
     - {regex: '^STOP_CHARGE_THRESH_BAT1=', line: 'STOP_CHARGE_THRESH_BAT1=82'}
+    - {regex: '^DEVICES_TO_DISABLE_ON_STARTUP=', line: 'DEVICES_TO_DISABLE_ON_STARTUP="bluetooth"'}
 
 - name: start tlp
   shell: tlp start
@@ -67,6 +82,17 @@
 #   shell: fzf_configure_bindings --git_status=\cg --history=\cr --variables=\cv --directory=\cf --git_log=\cl
 #   become_user: "{{ user }}"
 
+- name: Add flatpak support
+  shell: "flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo && flatpak update"
+
+- name: Add snap support
+  ansible.builtin.file:
+    src: "/var/lib/snapd/snap"
+    dest: "/snap"
+    owner: "root"
+    group: "root"
+    state: link
+
 - name: check that nvim directory exists
   file:
     path: "/home/{{ user }}/.local/share/nvim/site/autoload"
@@ -84,14 +110,6 @@
 - name: download asdf
   shell: "git clone https://github.com/asdf-vm/asdf.git /home/{{ user }}/.asdf --branch release-v0.9.1 &&
   chown -R {{ user }}:{{ user }} /home/{{ user }}/.asdf"
-  ignore_errors: True
-
-- name: install asdf plugins
-  shell: "asdf plugin add {{ item.lang }}"
-  loop:
-    - {lang: "python"}
-    - {lang: "nodejs"}
-  become_user: "{{ user }}"
   ignore_errors: True
 
 - name: update sleep.conf to enable hibernation
