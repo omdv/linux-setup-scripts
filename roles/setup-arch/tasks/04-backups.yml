@@ -1,0 +1,32 @@
+---
+- name: Install packages
+  community.general.pacman: 
+    name:
+      - borgbackup
+      - borgmatic
+  become: yes
+
+- name: copy borgmatic service and timer
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+  loop:
+    - {src: './files/borgmatic.service', dest: '/etc/systemd/system/borgmatic.service'}
+    - {src: './files/borgmatic.timer', dest: '/etc/systemd/system/borgmatic.timer'}
+  become: yes
+
+- name: Enable borgmatic service
+  ansible.builtin.systemd:
+    name: borgmatic
+    enabled: yes
+  become: yes
+
+- name: enable borgmatic timer
+  ansible.builtin.systemd:
+    name: borgmatic.timer
+    state: started
+    daemon_reload: yes
+    enabled: yes
+  become: yes

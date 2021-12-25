@@ -1,0 +1,75 @@
+---
+- name: Install packages
+  community.general.pacman: 
+    name:
+      - fish
+      - fd
+      - bat
+      - fzf
+      - neovim
+      - gnupg
+      - tlp
+      - powertop
+      - chrome-gnome-shell
+
+- name: Make fish a default shell
+  shell: "usermod -s /usr/bin/fish {{ user }}"
+
+- name: Check that nvim directory exists
+  file:
+    path: "/home/{{ user }}/.local/share/nvim/site/autoload"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: Download plugin manager
+  get_url: 
+    dest: "/home/{{ user }}/.local/share/nvim/site/autoload/plug.vim"
+    url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: Download asdf
+  ansible.builtin.git:
+    repo: https://github.com/asdf-vm/asdf.git
+    dest: /home/{{ user }}/.asdf
+    version: release-v0.9.1
+
+- name: Change ownership of .asdf
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.asdf"
+    state: directory
+    recurse: yes
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: mask rfkill
+  shell: systemctl mask systemd-rfkill.socket && systemctl mask systemd-rfkill.service
+  become: yes
+
+- name: configure tlp.conf
+  ansible.builtin.lineinfile:
+    path: /etc/tlp.conf
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+  loop:
+    - {regex: '^PCIE_ASPM_ON_BAT=', line: 'PCIE_ASPM_ON_BAT = powersupersave'}
+    - {regex: '^START_CHARGE_THRESH_BAT0=', line: 'START_CHARGE_THRESH_BAT0=73'}
+    - {regex: '^STOP_CHARGE_THRESH_BAT0=', line: 'STOP_CHARGE_THRESH_BAT0=82'}
+    - {regex: '^START_CHARGE_THRESH_BAT1=', line: 'START_CHARGE_THRESH_BAT1=73'}
+    - {regex: '^STOP_CHARGE_THRESH_BAT1=', line: 'STOP_CHARGE_THRESH_BAT1=82'}
+    - {regex: '^DEVICES_TO_DISABLE_ON_STARTUP=', line: 'DEVICES_TO_DISABLE_ON_STARTUP="bluetooth"'}
+    - {regex: '^#USB_AUTOSUSPEND=', line: 'USB_AUTOSUSPEND=0'}
+    - {regex: '^#TLP_DEFAULT_MODE=', line: 'TLP_DEFAULT_MODE=BAT'}
+    - {regex: '^#TLP_PERSISTENT_DEFAULT=', line: 'TLP_PERSISTENT_DEFAULT=1'}
+  become: yes
+
+- name: start tlp
+  service:
+    name: tlp
+    state: started
+    enabled: yes
+  become: yes
+
+
+

@@ -1,5 +1,5 @@
 ---
-- name: -- SETUP FEDORA --
+- name: -- FEDORA POST INSTALL --
   hosts: 127.0.0.1
   roles:
     - setup-fedora

@@ -1,0 +1,49 @@
+---
+- name: Install packages
+  community.general.pacman: 
+    name:
+      - docker
+      - containerd
+      - kubectl
+  become: yes
+
+- name: Install AUR
+  shell: yay -Say kubecolor
+
+- name: Create .kube folder
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.kube"
+    state: directory
+    recurse: yes
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: Create docker group
+  ansible.builtin.group:
+    name: docker
+    state: present
+  become: yes
+
+- name: Add user to docker
+  ansible.builtin.user:
+    name: "{{ user }}"
+    groups: docker
+    append: yes
+  become: yes
+
+- name: Start docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Create docker remote context
+  shell: docker context create remote --docker "host=ssh://{{ homelab_ip }}"
+  ignore_errors: true
+
+- name: Fetch k3s context from homelab
+  shell: "scp {{ user }}@{{homelab_ip}}:/etc/rancher/k3s/k3s.yaml /home/{{ user }}/.kube/remote"
+
+- name: Replace server
+  shell: "sed -i 's/127.0.0.1/{{homelab_ip}}/' /home/{{ user }}/.kube/remote"

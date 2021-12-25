@@ -1,0 +1,9 @@
+---
+- name: -- ARCH POST INSTALL --
+  hosts: 127.0.0.1
+  roles:
+    - setup-arch
+  vars:
+    - user: "om"
+    - homelab_ip: "{{ lookup('env','HOMELAB_LOCAL_IP') }}"
+  become: False

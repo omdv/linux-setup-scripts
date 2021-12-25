@@ -1,0 +1,41 @@
+---
+# ref: https://www.ctrl.blog/entry/fedora-hibernate.html
+# ref: https://community.frame.work/t/linux-battery-life-tuning/6665
+#TODO: switch to gpu rendering in firefox
+#TODO: AUR helper install
+#TODO: auto hibernation enablement
+# use my easy-arch script
+# determine resume_offset
+# echo resume offset to /sys/power/resume_offset
+# update /etc/default/grub and include resume and resume_offset flags
+# regenerate /boot/grub/grub.cfg file
+
+- name: Update sleep.conf to enable hibernation
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/sleep.conf
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+  loop:
+    - {regex: '^#AllowSuspend=', line: 'AllowSuspend=yes'}
+    - {regex: '^#AllowHibernation=', line: 'AllowHibernation=yes'}
+    - {regex: '^#AllowSuspendThenHibernate=', line: 'AllowSuspendThenHibernate=yes'}
+    - {regex: '^#HibernateDelaySec=', line: 'HibernateDelaySec=120min'}
+  become: yes
+
+- name: Update logind.conf to enable hibernation
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/logind.conf
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+  loop:
+    - {regex: '^#HandleLidSwitch=', line: 'HandleLidSwitch=suspend-then-hibernate'}
+    - {regex: '^#HandleLidSwitchExternalPower=', line: 'HandleLidSwitchExternalPower=suspend'}
+  become: yes
+
+- name: Create .local/bin folder
+  ansible.builtin.file:
+    path: "/home/{{ user }}/.local/bin"
+    state: directory
+    recurse: yes
+    owner: "{{ user }}"
+    group: "{{ user }}"

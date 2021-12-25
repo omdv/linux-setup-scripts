@@ -1,0 +1,21 @@
+[Unit]
+Description=borgmatic backup
+Wants=network.target
+After=network.target
+ConditionACPower=false
+
+[Service]
+Type=oneshot
+
+# Lower CPU and I/O priority.
+Nice=19
+CPUSchedulingPolicy=batch
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+IOWeight=100
+
+Restart=no
+LogRateLimitIntervalSec=0
+
+ExecStartPre=sleep 1m
+ExecStart=systemd-inhibit --who="borgmatic" --why="Prevent interrupting scheduled backup" /usr/bin/borgmatic -c /home/om/.config/borgmatic/config.yaml --verbosity 2 --syslog-verbosity 2

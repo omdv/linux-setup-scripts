@@ -1,0 +1,16 @@
+---
+- import_tasks: 01-system.yml
+  tags:
+    - system
+
+- import_tasks: 02-system-utils.yml
+  tags:
+    - system-utils
+
+- import_tasks: 04-backups.yml
+  tags:
+    - backups
+
+- import_tasks: 10-docker.yml
+  tags:
+    - docker
